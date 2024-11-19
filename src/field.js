@@ -80,6 +80,19 @@ function testConditional(conditional) {
 				// get value from meta object
 				return getNestedValue(meta, source);
 
+			case "taxonomy":
+				const terms = select("core/editor").getEditedPostAttribute("platform");
+				const termNames = select("core").getEntityRecords(
+					"taxonomy",
+					"platform",
+					{ include: terms }
+				);
+
+				return termNames?.map((term) => term.slug);
+
+			// get value from meta object
+			// return getNestedValue(meta, source);
+
 			default:
 				break;
 		}
@@ -91,6 +104,18 @@ function testConditional(conditional) {
 			switch (operator) {
 				case "==":
 					passes = sourceVal === value;
+					break;
+
+				default:
+					break;
+			}
+
+			break;
+
+		case "taxonomy":
+			switch (operator) {
+				case "contains":
+					passes = sourceVal?.includes(value);
 					break;
 
 				default:
@@ -178,7 +203,17 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 					label={fieldLabel}
 					value={value}
 					onChange={(newVal) => update(newVal)}
-					type="url"
+				/>
+			);
+			break;
+
+		case "date":
+			field = (
+				<TextControl
+					label={fieldLabel}
+					value={value}
+					onChange={(newVal) => update(newVal)}
+					type="date"
 				/>
 			);
 			break;
@@ -186,16 +221,18 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 		case "object":
 			// render subfields
 			field = (
-				<>
+				<div className="lore-complex-field">
 					<p>{fieldLabel}</p>
-					{Object.entries(schema.properties).map(([k, s]) => (
-						<Field
-							selector={[...selector, k]}
-							schema={s}
-							rootSchema={selector.length === 1 ? schema : rootSchema}
-						/>
-					))}
-				</>
+					<div className="lore-field-group">
+						{Object.entries(schema.properties).map(([k, s]) => (
+							<Field
+								selector={[...selector, k]}
+								schema={s}
+								rootSchema={selector.length === 1 ? schema : rootSchema}
+							/>
+						))}
+					</div>
+				</div>
 			);
 			break;
 

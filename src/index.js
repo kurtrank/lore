@@ -3,6 +3,7 @@
  */
 import { useMetaData } from "./hooks";
 import Field from "./field";
+import "./index.scss";
 
 /**
  * WordPress dependencies
@@ -59,9 +60,11 @@ const PluginDocumentSettingPanelCentralHub = () => {
 						}`}
 						title={`Post Meta: ${title === "__main" ? "General" : title}`}
 					>
-						{fields.map(({ key, schema }) => {
-							return <Field selector={key} schema={schema} />;
-						})}
+						<div className="lore-field-group">
+							{fields.map(({ key, schema }) => {
+								return <Field selector={key} schema={schema} />;
+							})}
+						</div>
 					</PluginDocumentSettingPanel>
 				);
 			})}
