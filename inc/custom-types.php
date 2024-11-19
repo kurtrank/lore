@@ -3,12 +3,13 @@
 namespace Lore;
 
 use function add_action;
-use function get_stylesheet_directory;
 use function register_post_meta;
 use function register_taxonomy;
 use function register_post_type;
 use function flush_rewrite_rules;
 use function apply_filters;
+
+$lore_in_view_context = true;
 
 // Flush rewrite rules for custom post types
 function flush_rewrite() {
@@ -75,7 +76,25 @@ function register_post_types() {
 }
 add_action( 'init', __NAMESPACE__ . '\register_post_types', 5 );
 
+add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\maybe_skip_format', 10, 3 );
+function maybe_skip_format( $result, $server, $request ) {
+	global $lore_in_view_context;
+
+	$context = $request->get_param( 'context' );
+
+	if ( ! in_array( $context, array( 'view', null ), true ) || 'GET' !== $request->get_method() ) {
+		$lore_in_view_context = false;
+	}
+	return $result;
+}
+
 function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
+	global $lore_in_view_context;
+
+	if ( ! $lore_in_view_context ) {
+		// skip doing anything, as we just want the raw value stored in db
+		return $value;
+	}
 
 	// Here is the catch, add additional controls if needed (post_type, etc)
 	$meta = \get_registered_meta_keys( 'post', 'site' );
@@ -91,17 +110,28 @@ function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 		add_filter( 'get_post_metadata', __NAMESPACE__ . '\format_value', 100, 5 );
 
 		if ( isset( $meta_field['show_in_rest']['schema']['return_format_cb'] ) ) {
-			$current_meta = call_user_func(
-				$meta_field['show_in_rest']['schema']['return_format_cb'],
-				$current_meta,
-				$meta_key,
-				$meta_field
-			);
+			if ( $single ) {
+				$current_meta = call_user_func(
+					$meta_field['show_in_rest']['schema']['return_format_cb'],
+					$current_meta,
+					$meta_key,
+					$meta_field
+				);
+			} else {
+				$value = array();
+				if ( is_array( $current_meta ) ) {
+					foreach ( $current_meta as $row ) {
+						$value[] = call_user_func(
+							$meta_field['show_in_rest']['schema']['return_format_cb'],
+							$row,
+							$meta_key,
+							$meta_field
+						);
+					}
+				}
+				$current_meta = $value;
+			}
 		}
-
-		// Do what you need to with the meta value - translate, append, etc
-		// $current_meta = qtlangcustomfieldvalue_translate( $current_meta );
-		// $current_meta .= ' Appended text';
 
 		if ( true === $single && in_array( $meta_field['type'], array( 'array', 'object' ), true ) ) {
 			// core WP tries to return first item only if `$single` is true, so
