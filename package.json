@@ -1,0 +1,62 @@
+{
+	"name": "central-hub",
+	"version": "0.0.1",
+	"description": "WordPress project to manage Risepoint sites",
+	"main": "index.js",
+	"scripts": {
+		"build": "wp-scripts build",
+		"start": "wp-scripts start",
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"generate-zip": "node node_modules/wp-release/release-prep.js",
+		"test-release": "semantic-release --dry-run",
+		"release": "semantic-release"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/risepoint/central-hub.git"
+	},
+	"author": "Kurt Rank",
+	"bugs": {
+		"url": "https://github.com/risepoint/central-hub/issues"
+	},
+	"homepage": "https://github.com/risepoint/central-hub#readme",
+	"devDependencies": {
+		"@wordpress/scripts": "^30.4.0",
+		"wp-release": "github:risepoint/wp-release"
+	},
+	"dependencies": {
+		"@wordpress/icons": "^10.3.0"
+	},
+	"commitlint": {
+		"extends": [
+			"@commitlint/config-conventional"
+		]
+	},
+	"config": {
+		"commitizen": {
+			"path": "./node_modules/cz-conventional-changelog"
+		},
+		"wpRelease": {
+			"ignore": [
+				".editorconfig",
+				".DS_Store",
+				".git/**",
+				".github/**",
+				".gitignore",
+				".npm/**",
+				"node_modules/**",
+				"src/**"
+			]
+		}
+	},
+	"release": {
+		"extends": "wp-release",
+		"branches": [
+			"main",
+			{
+				"name": "beta",
+				"prerelease": true
+			}
+		]
+	}
+}
