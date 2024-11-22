@@ -21,6 +21,7 @@
 	},
 	"homepage": "https://github.com/kurtrank/lore#readme",
 	"devDependencies": {
+		"@humanmade/block-editor-components": "^0.7.0-beta.0",
 		"@wordpress/scripts": "^30.4.0",
 		"wp-release": "github:risepoint/wp-release"
 	},

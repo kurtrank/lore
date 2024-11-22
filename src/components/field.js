@@ -1,9 +1,19 @@
 /**
+ * Internal dependencies
+ */
+import PostComboboxControl from "./post-combobox-control";
+
+/**
  * WordPress dependencies
  */
-import { SelectControl, TextControl } from "@wordpress/components";
+import { SelectControl, TextControl, Button } from "@wordpress/components";
 import { useSelect, useDispatch } from "@wordpress/data";
-import { group } from "@wordpress/icons";
+import { trash, arrowUp, arrowDown } from "@wordpress/icons";
+
+/**
+ * External dependencies
+ */
+import { PostPickerButton } from "@humanmade/block-editor-components";
 
 function getNestedValue(obj, selector) {
 	let path = Array.isArray(selector) ? selector : [selector];
@@ -24,7 +34,17 @@ function setNestedValue(obj, selector, value) {
 	const [current, ...rest] = selector;
 
 	if (0 === rest.length) {
-		obj[`${current}`] = value;
+		if (null === value) {
+			// remove item
+			if (Array.isArray(obj)) {
+				obj.splice(current, 1);
+			} else {
+				delete obj[`${current}`];
+			}
+		} else {
+			obj[`${current}`] = value;
+		}
+		console.log(obj);
 	} else {
 		setNestedValue(obj[current], rest, value);
 	}
@@ -190,6 +210,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 	let field = (
 		<TextControl
 			label={fieldLabel}
+			help={schema?.description}
 			value={value}
 			onChange={(newVal) => update(newVal)}
 		/>
@@ -201,6 +222,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			field = (
 				<TextControl
 					label={fieldLabel}
+					help={schema?.description}
 					value={value}
 					onChange={(newVal) => update(newVal)}
 				/>
@@ -211,6 +233,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			field = (
 				<TextControl
 					label={fieldLabel}
+					help={schema?.description}
 					value={value}
 					onChange={(newVal) => update(newVal)}
 					type="date"
@@ -222,7 +245,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			// render subfields
 			field = (
 				<div className="lore-complex-field">
-					<p>{fieldLabel}</p>
+					<p className="lore-label">{fieldLabel}</p>
 					<div className="lore-field-group">
 						{Object.entries(schema.properties).map(([k, s]) => (
 							<Field
@@ -232,8 +255,165 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 							/>
 						))}
 					</div>
+					{schema?.description ? (
+						<p className="lore-help">{schema.description}</p>
+					) : null}
 				</div>
 			);
+			break;
+
+		case "post-combobox":
+			field = (
+				<PostComboboxControl
+					value={value}
+					onChange={(newValue) => {
+						update(newValue);
+					}}
+					help={schema?.description}
+					label={fieldLabel}
+					type={ui?.post_type ?? "post"}
+					placeholder={`select ${ui?.post_type ?? "post"}`}
+				/>
+			);
+			break;
+
+		case "post-picker-modal":
+			field = (
+				<div className="lore-post-select-field">
+					<p className="lore-label">{fieldLabel}</p>
+					<p className="lore-post-select-field__value">postId: {value}</p>
+					<PostPickerButton
+						title={"Select Post"}
+						onChange={(newValue) =>
+							update(newValue.length > 0 ? newValue[0] : 0)
+						}
+						values={value ? [value] : []}
+					/>
+				</div>
+			);
+			break;
+
+		case "repeater":
+			field =
+				schema?.type === "array" ? (
+					<div className="lore-complex-field" data-type="repeater">
+						<p className="lore-label">{fieldLabel}</p>
+						<div className="lore-field-group">
+							{value.map((v, index) => (
+								<div className="lore-field-group-item">
+									<Field
+										selector={[...selector, index]}
+										schema={schema.items}
+										rootSchema={selector.length === 1 ? schema : rootSchema}
+									/>
+									<div className="lore-actions">
+										<Button
+											size="compact"
+											label="Move up"
+											icon={arrowUp}
+											disabled={index < 1}
+											onClick={() => {
+												const copiedMetaObj = {
+													[`${root}`]: structuredClone(rootValue),
+												};
+												const arr = getNestedValue(copiedMetaObj, selector);
+												let element = arr[index];
+												arr.splice(index, 1);
+												arr.splice(index - 1, 0, element);
+												const newMetaVals = setNestedValue(
+													copiedMetaObj,
+													selector,
+													arr
+												);
+												editPost({
+													meta: newMetaVals,
+												});
+											}}
+										/>
+										<Button
+											size="compact"
+											label="Move down"
+											icon={arrowDown}
+											disabled={index >= value.length - 1}
+											onClick={() => {
+												const copiedMetaObj = {
+													[`${root}`]: structuredClone(rootValue),
+												};
+												const arr = getNestedValue(copiedMetaObj, selector);
+												let element = arr[index];
+												arr.splice(index, 1);
+												arr.splice(index + 1, 0, element);
+												const newMetaVals = setNestedValue(
+													copiedMetaObj,
+													selector,
+													arr
+												);
+												editPost({
+													meta: newMetaVals,
+												});
+											}}
+										/>
+										<Button
+											className="lore-remove"
+											size="compact"
+											label="Remove"
+											icon={trash}
+											onClick={() => {
+												const newMetaVals = setNestedValue(
+													{ [`${root}`]: structuredClone(rootValue) },
+													[...selector, index],
+													null
+												);
+												editPost({
+													meta: newMetaVals,
+												});
+											}}
+										/>
+									</div>
+								</div>
+							))}
+							<button
+								onClick={() => {
+									let newValue = false;
+									switch (schema?.items?.type) {
+										case "object":
+											newValue = {};
+											break;
+
+										case "array":
+											newValue = [];
+											break;
+
+										case "string":
+											newValue = "";
+											break;
+
+										case "number":
+										case "integer":
+											newValue = 0;
+											break;
+
+										default:
+											break;
+									}
+									const newMetaVals = setNestedValue(
+										{ [`${root}`]: structuredClone(rootValue) },
+										[...selector, value.length],
+										newValue
+									);
+									editPost({
+										meta: newMetaVals,
+									});
+								}}
+							>
+								Add
+							</button>
+						</div>
+						{schema?.description ? (
+							<p class="lore-help">{schema.description}</p>
+						) : null}
+					</div>
+				) : null;
 			break;
 
 		case "select":
@@ -242,6 +422,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 				field = (
 					<SelectControl
 						label={fieldLabel}
+						help={schema?.description}
 						value={value}
 						options={
 							skipEmptyEntry

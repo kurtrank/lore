@@ -69,11 +69,26 @@ function register_post_types() {
 					unset( $post_type_args['meta'] );
 
 					register_post_type( $post_type, $post_type_args );
+
+					// set up function to register columns
+					add_filter(
+						"manage_{$post_type}_posts_columns",
+						__NAMESPACE__ . '\register_admin_columns'
+					);
+
+					// handle the value for each of the new columns
+					add_action(
+						"manage_{$post_type}_posts_custom_column",
+						__NAMESPACE__ . '\populate_admin_column_value',
+						10,
+						2
+					);
 				}
 			}
 		}
 	}
 }
+
 add_action( 'init', __NAMESPACE__ . '\register_post_types', 5 );
 
 add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\maybe_skip_format', 10, 3 );
@@ -110,12 +125,14 @@ function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 		add_filter( 'get_post_metadata', __NAMESPACE__ . '\format_value', 100, 5 );
 
 		if ( isset( $meta_field['show_in_rest']['schema']['return_format_cb'] ) ) {
+			// handle user callbacks
 			if ( $single ) {
 				$current_meta = call_user_func(
 					$meta_field['show_in_rest']['schema']['return_format_cb'],
 					$current_meta,
 					$meta_key,
-					$meta_field
+					$meta_field,
+					$object_id
 				);
 			} else {
 				$value = array();
@@ -125,8 +142,22 @@ function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 							$meta_field['show_in_rest']['schema']['return_format_cb'],
 							$row,
 							$meta_key,
-							$meta_field
+							$meta_field,
+							$object_id
 						);
+					}
+				}
+				$current_meta = $value;
+			}
+		} elseif ( isset( $meta_field['show_in_rest']['schema']['return_format'] ) ) {
+			// handle builtin formatting
+			if ( $single ) {
+				$current_meta = format_for_return( $meta_field, $current_meta );
+			} else {
+				$value = array();
+				if ( is_array( $current_meta ) ) {
+					foreach ( $current_meta as $row ) {
+						$value[] = format_for_return( $meta_field, $row );
 					}
 				}
 				$current_meta = $value;
@@ -149,8 +180,27 @@ function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 
 add_filter( 'get_post_metadata', __NAMESPACE__ . '\format_value', 100, 5 );
 
+function format_for_return( $meta_field, $value ) {
+	$data_type     = $meta_field['type'] ?? false;
+	$field         = $meta_field['show_in_rest']['schema']['field'] ?? false;
+	$field_type    = $field['type'] ?? false;
+	$format        = $meta_field['show_in_rest']['schema']['format'] ?? false;
+	$return_format = $meta_field['show_in_rest']['schema']['return_format'] ?? false;
 
-add_action( 'platform_edit_form', __NAMESPACE__ . '\myprefix_edit_form_after_editor' );
-function myprefix_edit_form_after_editor( $tax ) {
-	echo '<h2>Term Meta</h2>';
+	if ( ! $return_format ) {
+		return $value;
+	}
+	if ( 'select' === $field_type ) {
+		if ( 'label' === $return_format ) {
+			$values = is_array( $field['options'] ) ? array_column( $field['options'], 'label', 'value' ) : false;
+			$_value = $values[ $value ] ?? null;
+			$value  = null !== $_value ? $_value : $value;
+		}
+	}
+	return $value;
 }
+
+// add_action( 'platform_edit_form', __NAMESPACE__ . '\myprefix_edit_form_after_editor' );
+// function myprefix_edit_form_after_editor( $tax ) {
+//  echo '<h2>Term Meta</h2>';
+// }

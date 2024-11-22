@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { useMetaData } from "./hooks";
-import Field from "./field";
+import Field from "./components/field";
 import "./index.scss";
 
 /**
@@ -53,7 +53,7 @@ const PluginDocumentSettingPanelCentralHub = () => {
 	const panels = fieldGroups ? (
 		<>
 			{Object.entries(fieldGroups).map(([title, fields]) => {
-				return (
+				return fields.length > 0 ? (
 					<PluginDocumentSettingPanel
 						name={`lore-post-meta-${
 							title === "__main" ? "general" : cleanForSlug(title)
@@ -66,7 +66,7 @@ const PluginDocumentSettingPanelCentralHub = () => {
 							})}
 						</div>
 					</PluginDocumentSettingPanel>
-				);
+				) : null;
 			})}
 		</>
 	) : null;
