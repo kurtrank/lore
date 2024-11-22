@@ -81,3 +81,20 @@ function get_file_list( $directory, $extension = null, $remove_extension = false
 
 	return $files;
 }
+
+function get_registered_meta_field( $object_type, $key, $object_subtype = '' ) {
+	$meta = get_registered_meta_keys( $object_type, $object_subtype );
+
+	return $meta[ $key ] ?? false;
+}
+
+
+function get_meta_options( $object_type, $key, $object_subtype = '' ) {
+	$field = get_registered_meta_field( $object_type, $key, $object_subtype );
+
+	if ( $field && isset( $field['show_in_rest']['schema']['field'] ) ) {
+		return $field['show_in_rest']['schema']['field']['options'] ?? false;
+	} else {
+		return false;
+	}
+}

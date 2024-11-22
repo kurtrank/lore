@@ -103,6 +103,8 @@ function maybe_skip_format( $result, $server, $request ) {
 	return $result;
 }
 
+// process any callbacks to transform "raw" value after it is out of the db
+// only in "view" context of REST api, we do not transform value if in "edit" context
 function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 	global $lore_in_view_context;
 
@@ -149,19 +151,6 @@ function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 				}
 				$current_meta = $value;
 			}
-		} elseif ( isset( $meta_field['show_in_rest']['schema']['return_format'] ) ) {
-			// handle builtin formatting
-			if ( $single ) {
-				$current_meta = format_for_return( $meta_field, $current_meta );
-			} else {
-				$value = array();
-				if ( is_array( $current_meta ) ) {
-					foreach ( $current_meta as $row ) {
-						$value[] = format_for_return( $meta_field, $row );
-					}
-				}
-				$current_meta = $value;
-			}
 		}
 
 		if ( true === $single && in_array( $meta_field['type'], array( 'array', 'object' ), true ) ) {
@@ -177,10 +166,19 @@ function format_value( $value, $object_id, $meta_key, $single, $object_type ) {
 	// Return original if the check does not pass
 	return $value;
 }
-
 add_filter( 'get_post_metadata', __NAMESPACE__ . '\format_value', 100, 5 );
 
-function format_for_return( $meta_field, $value ) {
+// adjust for usage/display in twig templates,
+// applies to values processed via timber objects
+function format_meta_for_display( $object_type, $object_subtype, $value, $object_id, $meta_key, $obj, $args ) {
+
+	// manually skip format
+	if ( isset( $args['format'] ) && false === $args['format'] ) {
+		return $value;
+	}
+
+	$meta_field = get_registered_meta_field( $object_type, $meta_key, $object_subtype );
+
 	$data_type     = $meta_field['type'] ?? false;
 	$field         = $meta_field['show_in_rest']['schema']['field'] ?? false;
 	$field_type    = $field['type'] ?? false;
@@ -199,6 +197,15 @@ function format_for_return( $meta_field, $value ) {
 	}
 	return $value;
 }
+
+// format 'post' object type
+function format_post_meta_for_display( $value, $object_id, $meta_key, $obj, $args ) {
+	$object_subtype = $obj->post_type;
+
+	return format_meta_for_display( 'post', $object_subtype, $value, $object_id, $meta_key, $obj, $args );
+}
+add_filter( 'timber/post/meta', __NAMESPACE__ . '\format_post_meta_for_display', 10, 5 );
+
 
 // add_action( 'platform_edit_form', __NAMESPACE__ . '\myprefix_edit_form_after_editor' );
 // function myprefix_edit_form_after_editor( $tax ) {
