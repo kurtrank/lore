@@ -6,7 +6,12 @@ import PostComboboxControl from "./post-combobox-control";
 /**
  * WordPress dependencies
  */
-import { SelectControl, TextControl, Button } from "@wordpress/components";
+import {
+	SelectControl,
+	TextControl,
+	Button,
+	ToggleControl,
+} from "@wordpress/components";
 import { useSelect, useDispatch } from "@wordpress/data";
 import { trash, arrowUp, arrowDown } from "@wordpress/icons";
 
@@ -433,6 +438,19 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 					/>
 				);
 			}
+			break;
+
+		case "toggle":
+			field = (
+				<ToggleControl
+					label={fieldLabel}
+					help={schema?.description}
+					checked={value}
+					onChange={(newVal) => {
+						update(newVal);
+					}}
+				/>
+			);
 			break;
 
 		default:

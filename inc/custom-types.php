@@ -194,6 +194,12 @@ function format_meta_for_display( $object_type, $object_subtype, $value, $object
 			$_value = $values[ $value ] ?? null;
 			$value  = null !== $_value ? $_value : $value;
 		}
+	} elseif ( 'date' === $format && '' !== $value ) {
+		$format = true === $return_format ? get_option( 'date_format' ) : $return_format;
+
+		if ( $format ) {
+			$value = date_format( date_create( $value ), $format );
+		}
 	}
 	return $value;
 }
