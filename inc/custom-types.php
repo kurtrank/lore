@@ -2,12 +2,16 @@
 
 namespace Lore;
 
+use WP_Error;
+
 use function add_action;
+use function get_taxonomies;
 use function register_post_meta;
 use function register_taxonomy;
 use function register_post_type;
 use function flush_rewrite_rules;
 use function apply_filters;
+
 
 $lore_in_view_context = true;
 
@@ -37,6 +41,15 @@ function register_taxonomies() {
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_taxonomies', 5 );
+
+function verify_term_creation_cap( $term, $taxonomy ) {
+	$tax = get_taxonomies( array(), 'object' )[ $taxonomy ] ?? false;
+
+	return ( $tax && $tax->cap->manage_terms && ! current_user_can( 'manage_categories' ) )
+		? new WP_Error( 'term_addition_blocked', __( 'You are not authorized to add new terms.' ) )
+		: $term;
+}
+add_action( 'pre_insert_term', __NAMESPACE__ . '\verify_term_creation_cap', 0, 2 );
 
 // Register custom post types
 function register_post_types() {
