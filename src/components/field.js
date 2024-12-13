@@ -11,6 +11,7 @@ import {
 	TextControl,
 	Button,
 	ToggleControl,
+	TextareaControl,
 } from "@wordpress/components";
 import { useSelect, useDispatch } from "@wordpress/data";
 import { trash, arrowUp, arrowDown } from "@wordpress/icons";
@@ -226,6 +227,17 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 		case "text":
 			field = (
 				<TextControl
+					label={fieldLabel}
+					help={schema?.description}
+					value={value}
+					onChange={(newVal) => update(newVal)}
+				/>
+			);
+			break;
+
+		case "textarea":
+			field = (
+				<TextareaControl
 					label={fieldLabel}
 					help={schema?.description}
 					value={value}
