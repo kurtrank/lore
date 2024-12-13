@@ -45,7 +45,7 @@ add_action( 'init', __NAMESPACE__ . '\register_taxonomies', 5 );
 function verify_term_creation_cap( $term, $taxonomy ) {
 	$tax = get_taxonomies( array(), 'object' )[ $taxonomy ] ?? false;
 
-	return ( $tax && $tax->cap->manage_terms && ! current_user_can( 'manage_categories' ) )
+	return ( $tax && $tax->cap->manage_terms && ! current_user_can( $tax->cap->manage_terms ) )
 		? new WP_Error( 'term_addition_blocked', __( 'You are not authorized to add new terms.' ) )
 		: $term;
 }
