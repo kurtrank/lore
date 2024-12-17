@@ -19,7 +19,7 @@ $lore_in_view_context = true;
 function flush_rewrite() {
 	flush_rewrite_rules();
 }
-add_action( 'after_switch_theme', __NAMESPACE__ . '\flush_rewrite_rules' );
+add_action( 'after_switch_theme', __NAMESPACE__ . '\flush_rewrite' );
 
 // Register taxonomies
 function register_taxonomies() {
