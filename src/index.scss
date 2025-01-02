@@ -87,3 +87,23 @@
 		}
 	}
 }
+
+.lore-field-panel {
+	--lore-border: 1px solid #e0e0e0;
+	--lore-field-panel-space: 16px;
+	border: var(--lore-border);
+	padding: 16px;
+
+	> summary {
+		margin: calc(-1 * var(--lore-field-panel-space));
+		padding: var(--lore-field-panel-space);
+	}
+
+	&[open] > summary {
+		margin-bottom: var(--lore-field-panel-space);
+	}
+
+	+ .lore-field-panel {
+		border-top: none;
+	}
+}

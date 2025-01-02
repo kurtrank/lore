@@ -5,6 +5,7 @@ namespace Lore;
 use WP_Error;
 
 use function add_action;
+use function add_meta_box;
 use function get_taxonomies;
 use function register_post_meta;
 use function register_taxonomy;
@@ -103,6 +104,23 @@ function register_post_types() {
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_post_types', 5 );
+
+function wporg_add_custom_box() {
+	$screens = array( 'site' );
+	foreach ( $screens as $screen ) {
+		add_meta_box(
+			'lore_edit_bottom',
+			'Post Meta',
+			__NAMESPACE__ . '\wporg_custom_box_html',
+			$screen
+		);
+	}
+}
+add_action( 'add_meta_boxes', __NAMESPACE__ . '\wporg_add_custom_box' );
+
+function wporg_custom_box_html() {
+	echo '<div id="lore-edit-meta-bottom"></div>';
+}
 
 add_filter( 'rest_pre_dispatch', __NAMESPACE__ . '\maybe_skip_format', 10, 3 );
 function maybe_skip_format( $result, $server, $request ) {

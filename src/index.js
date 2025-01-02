@@ -17,20 +17,18 @@ import {
 import { PluginDocumentSettingPanel } from "@wordpress/editor";
 import { registerPlugin } from "@wordpress/plugins";
 import { cleanForSlug } from "@wordpress/url";
+import { createRoot } from "react-dom/client";
 
-const PluginDocumentSettingPanelCentralHub = () => {
-	// post data
+function useLocationFieldGroups(location = "side") {
 	const { postMetaFields } = useMetaData();
-
-	// const metaData = useSelect(function (select) {
-	// 	return select("core/editor").getEditedPostAttribute("meta");
-	// }, []);
-
 	const fieldGroups = postMetaFields
 		? Object.entries(postMetaFields)
 				.filter(([key, schema]) => {
 					// only include meta fields with defined "field" ui
-					return Object.hasOwn(schema, "field");
+					const fieldLocation = schema?.field?.location
+						? schema?.field?.location
+						: "side";
+					return Object.hasOwn(schema, "field") && fieldLocation === location;
 				})
 				.reduce(
 					(groups, [key, schema]) => {
@@ -49,6 +47,16 @@ const PluginDocumentSettingPanelCentralHub = () => {
 					{ __main: [] }
 				)
 		: false;
+
+	return fieldGroups;
+}
+
+const PluginDocumentSettingPanelCentralHub = () => {
+	// const metaData = useSelect(function (select) {
+	// 	return select("core/editor").getEditedPostAttribute("meta");
+	// }, []);
+
+	const fieldGroups = useLocationFieldGroups();
 
 	const panels = fieldGroups ? (
 		<>
@@ -76,4 +84,35 @@ const PluginDocumentSettingPanelCentralHub = () => {
 
 registerPlugin("risepoint-central-hub-data", {
 	render: PluginDocumentSettingPanelCentralHub,
+});
+
+const LowerMetaBox = () => {
+	// post data
+	const fieldGroups = useLocationFieldGroups("bottom");
+	console.log(fieldGroups);
+	const panels = fieldGroups ? (
+		<div>
+			{Object.entries(fieldGroups).map(([title, fields]) => {
+				return fields.length > 0 ? (
+					<details class="lore-field-panel">
+						<summary>{title}</summary>
+						<div className="lore-field-group">
+							{fields.map(({ key, schema }) => {
+								return <Field selector={key} schema={schema} />;
+							})}
+						</div>
+					</details>
+				) : null;
+			})}
+		</div>
+	) : null;
+
+	return panels;
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+	const metaBox = document.getElementById("lore-edit-meta-bottom");
+	if (metaBox) {
+		createRoot(metaBox).render(<LowerMetaBox />);
+	}
 });
