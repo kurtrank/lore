@@ -7,6 +7,7 @@ use WP_Error;
 use function add_action;
 use function add_meta_box;
 use function get_taxonomies;
+use function get_post_types;
 use function register_post_meta;
 use function register_taxonomy;
 use function register_post_type;
@@ -105,14 +106,37 @@ function register_post_types() {
 
 add_action( 'init', __NAMESPACE__ . '\register_post_types', 5 );
 
+$cpts_with_meta = array();
+
+/**
+ * Runs once for each CPT after it is registered.
+ *
+ * @param string $post_type The slug, e.g. 'site', 'lead_integration'.
+ * @param object $args      The full post-type object.
+ */
+function track_cpt_with_meta( $post_type, $args ) {
+	global $cpts_with_meta;
+
+	foreach ( get_registered_meta_keys( 'post', $post_type ) as $meta_key => $args ) {
+		$field = $args['show_in_rest']['schema']['field'] ?? null;
+
+		if ( isset( $field['location'] ) && 'bottom' === $field['location'] ) {
+			$cpts_with_meta[] = $post_type;
+			break;
+		}
+	}
+}
+add_action( 'registered_post_type', __NAMESPACE__ . '\track_cpt_with_meta', 10, 2 );
+
 function wporg_add_custom_box() {
-	$screens = array( 'site' );
-	foreach ( $screens as $screen ) {
+	global $cpts_with_meta;
+
+	foreach ( array_unique( $cpts_with_meta ) as $cpt ) {
 		add_meta_box(
 			'lore_edit_bottom',
 			'Post Meta',
 			__NAMESPACE__ . '\wporg_custom_box_html',
-			$screen
+			$cpt
 		);
 	}
 }
