@@ -7,6 +7,7 @@ use WP_Error;
 use function add_action;
 use function add_meta_box;
 use function get_taxonomies;
+use function get_post_types;
 use function register_post_meta;
 use function register_taxonomy;
 use function register_post_type;
@@ -105,18 +106,30 @@ function register_post_types() {
 
 add_action( 'init', __NAMESPACE__ . '\register_post_types', 5 );
 
-function wporg_add_custom_box() {
-	$screens = array( 'site' );
-	foreach ( $screens as $screen ) {
-		add_meta_box(
-			'lore_edit_bottom',
-			'Post Meta',
-			__NAMESPACE__ . '\wporg_custom_box_html',
-			$screen
-		);
+function wporg_add_custom_box( $post_type, $post ) {
+	// check if CPT has post meta registered
+	$meta_keys = get_registered_meta_keys( 'post', $post_type );
+	if ( ! $meta_keys ) {
+		return;
+	}
+
+	// add post meta box only if at least 1 meta field has location: bottom
+	foreach ( $meta_keys as $meta_key => $args ) {
+		$field = $args['show_in_rest']['schema']['field'] ?? null;
+
+		if ( isset( $field['location'] ) && 'bottom' === $field['location'] ) {
+			add_meta_box(
+				'lore_edit_bottom',
+				'Post Meta',
+				__NAMESPACE__ . '\wporg_custom_box_html',
+				$post_type
+			);
+			break;
+		}
 	}
 }
-add_action( 'add_meta_boxes', __NAMESPACE__ . '\wporg_add_custom_box' );
+
+add_action( 'add_meta_boxes', __NAMESPACE__ . '\wporg_add_custom_box', 10, 2 );
 
 function wporg_custom_box_html() {
 	echo '<div id="lore-edit-meta-bottom"></div>';

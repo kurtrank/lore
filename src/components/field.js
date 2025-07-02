@@ -111,7 +111,7 @@ function testConditional(conditional) {
 				const termNames = select("core").getEntityRecords(
 					"taxonomy",
 					"platform",
-					{ include: terms }
+					{ include: terms },
 				);
 
 				return termNames?.map((term) => term.slug);
@@ -185,7 +185,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			const newMetaVals = setNestedValue(
 				{ [`${root}`]: structuredClone(rootValue) },
 				selector,
-				newValue
+				newValue,
 			);
 			editPost({
 				meta: newMetaVals,
@@ -340,7 +340,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 												const newMetaVals = setNestedValue(
 													copiedMetaObj,
 													selector,
-													arr
+													arr,
 												);
 												editPost({
 													meta: newMetaVals,
@@ -363,7 +363,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 												const newMetaVals = setNestedValue(
 													copiedMetaObj,
 													selector,
-													arr
+													arr,
 												);
 												editPost({
 													meta: newMetaVals,
@@ -379,7 +379,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 												const newMetaVals = setNestedValue(
 													{ [`${root}`]: structuredClone(rootValue) },
 													[...selector, index],
-													null
+													null,
 												);
 												editPost({
 													meta: newMetaVals,
@@ -416,7 +416,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 									const newMetaVals = setNestedValue(
 										{ [`${root}`]: structuredClone(rootValue) },
 										[...selector, value.length],
-										newValue
+										newValue,
 									);
 									editPost({
 										meta: newMetaVals,
@@ -436,6 +436,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 		case "select":
 			if (ui?.options) {
 				const skipEmptyEntry = ui.allowNull === false;
+				const emptyLabel = ui.empty_label ?? "-";
 				field = (
 					<SelectControl
 						label={fieldLabel}
@@ -444,7 +445,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 						options={
 							skipEmptyEntry
 								? ui.options
-								: [{ value: "", label: "-" }, ...ui.options]
+								: [{ value: "", label: emptyLabel }, ...ui.options]
 						}
 						onChange={(newVal) => update(newVal)}
 					/>
