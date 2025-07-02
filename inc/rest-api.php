@@ -58,12 +58,12 @@ function add_query_params( $args, $request ) {
 			$meta_query['relation'] = $part;
 		} else {
 			$matches = array();
-			$res     = preg_match( '/([a-z]+)([!<>]?:?(like|between|in|exists)?:?)(.+)/', $part, $matches );
+			$res     = preg_match( '/([a-z_]+)([!<>]?:?(?:like|between|in|exists)?:?)(.+)/', $part, $matches );
 
 			if ( $res ) {
-				$_key = $matches[1];
+				$_key = sanitize_key( $matches[1] );
 				$_op  = $matches[2];
-				$_val = $matches[4];
+				$_val = $matches[3];
 
 				if ( in_array( $_op, array_keys( $supported_operators ), true ) ) {
 					$op  = $supported_operators[ $_op ];
