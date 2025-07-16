@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/kurtrank/lore/compare/v1.1.0...v1.2.0) (2025-07-16)
+
+
+### Features
+
+* enable simple string-based meta query arg for post endpoints ([#1](https://github.com/kurtrank/lore/issues/1)) ([31b13f6](https://github.com/kurtrank/lore/commit/31b13f6d0ff7568adf7b73f07e8f87d56e1f50d5))
+
 # [1.1.0](https://github.com/kurtrank/lore/compare/v1.0.0...v1.1.0) (2025-07-01)
 
 

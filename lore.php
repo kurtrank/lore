@@ -2,7 +2,7 @@
 /*
  * Plugin name: Lore
  * Description: Simple declarative custom types and fields
- * Version: 1.1.0
+ * Version: 1.2.0
  * Author: Kurt Rank
  * Author URI: https://kurtrank.me
  * License: GPL
