@@ -27,3 +27,4 @@ if ( ! defined( 'LORE_VERSION' ) ) {
 require_once 'inc/utilities.php';
 require_once 'inc/admin.php';
 require_once 'inc/custom-types.php';
+require_once 'inc/rest-api.php';
