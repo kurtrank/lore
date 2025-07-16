@@ -50,12 +50,12 @@
 		"rest_namespace": {
 			"type": "string",
 			"description": "To change the namespace URL of REST API route",
-			"defualt": "wp/v2"
+			"default": "wp/v2"
 		},
 		"rest_controller_class": {
 			"type": "string",
 			"description": "REST API controller class name",
-			"defualt": "WP_REST_Terms_Controller"
+			"default": "WP_REST_Terms_Controller"
 		},
 		"show_tagcloud": {
 			"type": "boolean",
@@ -79,10 +79,25 @@
 			"description": "Provide a callback function for the meta box display. If not set, post_categories_meta_box() is used for hierarchical taxonomies, and post_tags_meta_box() is used for non-hierarchical. If false, no meta box is shown"
 		},
 		"capabilities": {
-			"type": "array",
+			"type": "object",
 			"description": "Array of capabilities for this taxonomy",
-			"items": {
-				"type": "string"
+			"properties": {
+				"manage_terms": {
+					"type": "string",
+					"default": "manage_categories"
+				},
+				"edit_terms": {
+					"type": "string",
+					"default": "manage_categories"
+				},
+				"delete_terms": {
+					"type": "string",
+					"default": "manage_categories"
+				},
+				"assign_terms": {
+					"type": "string",
+					"default": "edit_posts"
+				}
 			}
 		},
 		"rewrite": {

@@ -42,7 +42,7 @@
 		},
 		"show_in_menu": {
 			"type": ["boolean", "string"],
-			"description": "Where to show the post type in the admin menu. To work, `show_u` must be true. If string, will be placed as a sub-menu of that item. Default is value of `show_ui`"
+			"description": "Where to show the post type in the admin menu. To work, `show_ui` must be true. If string, will be placed as a sub-menu of that item. Default is value of `show_ui`"
 		},
 		"show_in_nav_menus": {
 			"type": "boolean",
@@ -97,10 +97,33 @@
 			"description": "The string to use to build the read, edit, and delete capabilities. May be passed as an array to allow for alternative plurals when using this argument as a base to construct the capabilities"
 		},
 		"capabilities": {
-			"type": "array",
+			"type": "object",
 			"description": "Array of capabilities for this post type. `capability_type` is used as a base to construct capabilities by default",
-			"items": {
-				"type": "string"
+			"properties": {
+				"edit_post": {
+					"type": "string"
+				},
+				"read_post": {
+					"type": "string"
+				},
+				"delete_post": {
+					"type": "string"
+				},
+				"edit_posts": {
+					"type": "string"
+				},
+				"edit_others_posts": {
+					"type": "string"
+				},
+				"delete_posts": {
+					"type": "string"
+				},
+				"publish_posts": {
+					"type": "string"
+				},
+				"read_private_posts": {
+					"type": "string"
+				}
 			}
 		},
 		"map_meta_cap": {
