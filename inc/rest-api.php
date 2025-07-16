@@ -58,7 +58,7 @@ function add_query_params( $args, $request ) {
 			$meta_query['relation'] = $part;
 		} else {
 			$matches = array();
-			$res     = preg_match( '/([a-z_]+)([!<>]?:?(?:like|between|in|exists)?:?)(.+)/', $part, $matches );
+			$res     = preg_match( '/([a-zA-Z0-9_-]+)([!<>]?:?(?:like|between|in|exists)?:?)(.+)/', $part, $matches );
 
 			if ( $res ) {
 				$_key = sanitize_key( $matches[1] );
