@@ -334,6 +334,14 @@
 													"description": "Whether the UI control should be placed into a panel in the sidebar or below the content",
 													"enum": ["sidebar", "bottom"],
 													"default": "sidebar"
+												},
+												"admin_column": {
+													"type": "boolean",
+													"description": "Whether to create a custom column in the admin post list view"
+												},
+												"admin_filter": {
+													"type": "boolean",
+													"description": "Whether to create a custom filter select control in the admin post list view"
 												}
 											}
 										},
