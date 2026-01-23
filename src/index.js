@@ -4,6 +4,7 @@
 import { useMetaData } from "./hooks";
 import Field from "./components/field";
 import "./index.scss";
+import "./preferences";
 
 /**
  * WordPress dependencies
@@ -44,7 +45,7 @@ function useLocationFieldGroups(location = "side") {
 
 						return groups;
 					},
-					{ __main: [] }
+					{ __main: [] },
 				)
 		: false;
 

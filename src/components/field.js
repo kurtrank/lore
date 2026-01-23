@@ -213,10 +213,20 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 
 	const fieldLabel = ui?.label ?? selector[selector.length - 1];
 
+	const helpText = [schema?.description];
+
+	const showKeys = useSelect((select) => {
+		return select("core/preferences").get("kurtrank/lore", "showFieldMetaKeys");
+	});
+
+	helpText.push(showKeys ? `[meta key: "${selector}"]` : false);
+
+	const fieldHelp = helpText.filter((i) => i).join(" ");
+
 	let field = (
 		<TextControl
 			label={fieldLabel}
-			help={schema?.description}
+			help={fieldHelp}
 			value={value}
 			onChange={(newVal) => update(newVal)}
 		/>
@@ -228,7 +238,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			field = (
 				<TextControl
 					label={fieldLabel}
-					help={schema?.description}
+					help={fieldHelp}
 					value={value}
 					onChange={(newVal) => update(newVal)}
 				/>
@@ -239,7 +249,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			field = (
 				<TextareaControl
 					label={fieldLabel}
-					help={schema?.description}
+					help={fieldHelp}
 					value={value}
 					onChange={(newVal) => update(newVal)}
 				/>
@@ -250,7 +260,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			field = (
 				<TextControl
 					label={fieldLabel}
-					help={schema?.description}
+					help={fieldHelp}
 					value={value}
 					onChange={(newVal) => update(newVal)}
 					type="date"
@@ -272,9 +282,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 							/>
 						))}
 					</div>
-					{schema?.description ? (
-						<p className="lore-help">{schema.description}</p>
-					) : null}
+					{fieldHelp ? <p className="lore-help">{fieldHelp}</p> : null}
 				</div>
 			);
 			break;
@@ -286,7 +294,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 					onChange={(newValue) => {
 						update(newValue);
 					}}
-					help={schema?.description}
+					help={fieldHelp}
 					label={fieldLabel}
 					type={ui?.post_type ?? "post"}
 					placeholder={`select ${ui?.post_type ?? "post"}`}
@@ -426,9 +434,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 								Add
 							</button>
 						</div>
-						{schema?.description ? (
-							<p class="lore-help">{schema.description}</p>
-						) : null}
+						{fieldHelp ? <p class="lore-help">{fieldHelp}</p> : null}
 					</div>
 				) : null;
 			break;
@@ -440,7 +446,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 				field = (
 					<SelectControl
 						label={fieldLabel}
-						help={schema?.description}
+						help={fieldHelp}
 						value={value}
 						options={
 							skipEmptyEntry
@@ -457,7 +463,7 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 			field = (
 				<ToggleControl
 					label={fieldLabel}
-					help={schema?.description}
+					help={fieldHelp}
 					checked={value}
 					onChange={(newVal) => {
 						update(newVal);
