@@ -1,3 +1,11 @@
+# [1.3.0](https://github.com/kurtrank/lore/compare/v1.2.0...v1.3.0) (2026-01-23)
+
+
+### Features
+
+* add editor preference to show meta keys in help text of fields ([2684f3f](https://github.com/kurtrank/lore/commit/2684f3f22dbb94cba879e81a04d4facc81a5fdac))
+* **admin:** support new meta field options for admin column and filter ([#5](https://github.com/kurtrank/lore/issues/5)) ([b72e180](https://github.com/kurtrank/lore/commit/b72e1805c197d673e0619efa09d8627ee7fd2830))
+
 # [1.2.0](https://github.com/kurtrank/lore/compare/v1.1.0...v1.2.0) (2025-07-16)
 
 
