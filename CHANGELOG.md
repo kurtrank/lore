@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/kurtrank/lore/compare/v1.3.0...v1.3.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* **field:** move hook for preference higher so that it is present in every render ([#6](https://github.com/kurtrank/lore/issues/6)) ([4735118](https://github.com/kurtrank/lore/commit/4735118a9bcf29a92da7aec7aa6d28606795b6f0))
+
 # [1.3.0](https://github.com/kurtrank/lore/compare/v1.2.0...v1.3.0) (2026-01-23)
 
 
