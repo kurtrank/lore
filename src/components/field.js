@@ -162,6 +162,12 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 
 	const root = selector[0];
 
+	// needed for ui help text, but we need hook to always be present
+	// so it's up here in case field is conditionally skipped
+	const showKeys = useSelect((select) => {
+		return select("core/preferences").get("kurtrank/lore", "showFieldMetaKeys");
+	});
+
 	// get current value
 	const [value, rootValue] = useSelect(function (select) {
 		const meta = select("core/editor").getEditedPostAttribute("meta");
@@ -214,10 +220,6 @@ const Field = ({ selector, schema, rootSchema = null }) => {
 	const fieldLabel = ui?.label ?? selector[selector.length - 1];
 
 	const helpText = [schema?.description];
-
-	const showKeys = useSelect((select) => {
-		return select("core/preferences").get("kurtrank/lore", "showFieldMetaKeys");
-	});
 
 	helpText.push(showKeys ? `[meta key: "${selector}"]` : false);
 
